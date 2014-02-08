@@ -189,35 +189,6 @@ typedef NS_ENUM(NSInteger, _ScrollingDirection) {
     return collectionView;
 }
 
--(void)moveItemAtIndexPath:(NSIndexPath*)fromIndexPath toIndexPath:(NSIndexPath*)toIndexPath
-{
-    if (fromIndexPath.section==toIndexPath.section) {
-        //同一个table cell中的
-        UICollectionView * collectionView=[self collectionViewAtIndexPath:fromIndexPath];
-        NSIndexPath * fromIndex=[self cvIndexPathAtIndexPath:fromIndexPath];
-        NSIndexPath * toIndex=[self cvIndexPathAtIndexPath:toIndexPath];
-        
-        [collectionView performBatchUpdates:^{
-            [collectionView moveItemAtIndexPath:fromIndex toIndexPath:toIndex];
-            self.fromIndexPath = nil;
-            self.toIndexPath = nil;
-        } completion:nil];
-    }
-    else{
-        //不同table cell
-        NSIndexPath * fromIndex=[self cvIndexPathAtIndexPath:fromIndexPath];
-//        NSIndexPath * toIndex=[self cvIndexPathAtIndexPath:toIndexPath];
-        
-        UICollectionView * collectionView=[self collectionViewAtIndexPath:fromIndexPath];
-        //TODO:how to insert?
-//        UICollectionViewCell * cell=[collectionView cellForItemAtIndexPath:fromIndex];
-        [collectionView deleteItemsAtIndexPaths:@[fromIndex]];
-//        collectionView=[self collectionViewAtIndexPath:toIndexPath];
-//        [collectionView insertItemsAtIndexPaths:@[toIndex]];
-    }
-    
-}
-
 - (void)invalidatesScrollTimer {
     if (timer != nil) {
         [timer invalidate];
