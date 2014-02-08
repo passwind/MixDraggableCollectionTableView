@@ -131,12 +131,20 @@
 #pragma mark - QCMixTableViewDataSource_Draggable method
 -(void)qcMixTableView:(UITableView *)tableView moveItemAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
 {
+    NSMutableArray * array=[NSMutableArray array];
+    
     if (fromIndexPath.section==toIndexPath.section) {
         NSMutableArray * assets=_moments[fromIndexPath.section];
         NSString * image=assets[fromIndexPath.item];
         [assets removeObjectAtIndex:fromIndexPath.item];
-        [assets insertObject:image atIndex:toIndexPath.item];
+        if (toIndexPath.item>=[assets count]) {
+            [assets addObject:image];
+        }
+        else{
+            [assets insertObject:image atIndex:toIndexPath.item];
+        }
         [_moments replaceObjectAtIndex:fromIndexPath.section withObject:assets];
+        [array addObject:[NSIndexPath indexPathForRow:fromIndexPath.section inSection:0]];
     }
     else{
         NSMutableArray * assets=_moments[fromIndexPath.section];
@@ -145,11 +153,19 @@
         [_moments replaceObjectAtIndex:fromIndexPath.section withObject:assets];
         
         assets=_moments[toIndexPath.section];
-        [assets insertObject:image atIndex:toIndexPath.item];
+        if (toIndexPath.item>=[assets count]) {
+            [assets addObject:image];
+        }
+        else{
+            [assets insertObject:image atIndex:toIndexPath.item];
+        }
         [_moments replaceObjectAtIndex:toIndexPath.section withObject:assets];
+        
+        [array addObject:[NSIndexPath indexPathForRow:fromIndexPath.section inSection:0]];
+        [array addObject:[NSIndexPath indexPathForRow:toIndexPath.section inSection:0]];
     }
     
-    [_tableView reloadData];
+    [_tableView reloadRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationNone];
 }
 
 -(BOOL)qcMixTableView:(UITableView *)tableView canMoveItemAtIndexPath:(NSIndexPath *)indexPath

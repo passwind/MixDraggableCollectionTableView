@@ -39,7 +39,6 @@ typedef NS_ENUM(NSInteger, _ScrollingDirection) {
 
 @property (strong, nonatomic) NSIndexPath *fromIndexPath;
 @property (strong, nonatomic) NSIndexPath *toIndexPath;
-@property (strong, nonatomic) NSIndexPath *hideIndexPath;
 
 @end
 
@@ -271,7 +270,6 @@ typedef NS_ENUM(NSInteger, _ScrollingDirection) {
             return;
         }
     
-    self.hideIndexPath = indexPath;
     self.toIndexPath = indexPath;
 }
 
@@ -324,7 +322,6 @@ typedef NS_ENUM(NSInteger, _ScrollingDirection) {
             // Start warping
             lastIndexPath = indexPath;
             self.fromIndexPath = indexPath;
-            self.hideIndexPath = indexPath;
             self.toIndexPath = indexPath;
             
             DraggableCollectionViewFlowLayout * flowLayout=(DraggableCollectionViewFlowLayout*)collectionView.collectionViewLayout;
@@ -351,13 +348,15 @@ typedef NS_ENUM(NSInteger, _ScrollingDirection) {
             flowLayout.layoutHelper.hideFlag=NO;
             [flowLayout invalidateLayout];
             
-            self.fromIndexPath=nil;
-            self.toIndexPath=nil;
+            collectionView=[self collectionViewAtIndexPath:self.toIndexPath];
+            flowLayout=(DraggableCollectionViewFlowLayout*)collectionView.collectionViewLayout;
             
-            collectionView=[self collectionViewAtIndexPath:indexPath];
+            flowLayout.layoutHelper.hideIndexPath=[self cvIndexPathAtIndexPath:self.toIndexPath];
+            flowLayout.layoutHelper.hideFlag=YES;
+            [flowLayout invalidateLayout];
             
             // Switch mock for cell
-            UICollectionViewLayoutAttributes *layoutAttributes = [collectionView layoutAttributesForItemAtIndexPath:[self cvIndexPathAtIndexPath:self.hideIndexPath]];
+            UICollectionViewLayoutAttributes *layoutAttributes = [collectionView layoutAttributesForItemAtIndexPath:[self cvIndexPathAtIndexPath:self.toIndexPath]];
             CGPoint lastPoint=[self.tableView convertPoint:layoutAttributes.center fromView:collectionView];
             [UIView
              animateWithDuration:0.3
@@ -368,7 +367,12 @@ typedef NS_ENUM(NSInteger, _ScrollingDirection) {
              completion:^(BOOL finished) {
                  [mockCell removeFromSuperview];
                  mockCell = nil;
-                 self.hideIndexPath = nil;
+                 
+                 flowLayout.layoutHelper.hideFlag=NO;
+                 [flowLayout invalidateLayout];
+                 
+                 self.fromIndexPath=nil;
+                 self.toIndexPath=nil;
              }];
             
             // Reset
